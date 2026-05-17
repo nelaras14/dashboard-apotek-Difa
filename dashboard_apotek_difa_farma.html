@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Analitik Penjualan — Apotek Difa Farma 2025</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg:      #050D1A;
+  --surface: #0D1B2E;
+  --card:    #111F33;
+  --teal:    #00C8A0;
+  --cyan:    #22D3EE;
+  --blue:    #0EA5E9;
+  --amber:   #F59E0B;
+  --red:     #EF4444;
+  --green:   #10B981;
+  --text:    #F1F5F9;
+  --muted:   rgba(241,245,249,0.5);
+  --border:  rgba(255,255,255,0.07);
+  --grad:    linear-gradient(135deg,#00C8A0,#22D3EE,#0EA5E9);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* ─── GRID BG ─── */
+body::before{content:'';position:fixed;inset:0;pointer-events:none;
+  background-image:linear-gradient(rgba(0,200,160,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,200,160,.03) 1px,transparent 1px);
+  background-size:48px 48px;z-index:0}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 70% 50% at 10% 0%,rgba(0,200,160,.09) 0%,transparent 60%),
+             radial-gradient(ellipse 50% 40% at 90% 80%,rgba(14,165,233,.07) 0%,transparent 60%);z-index:0}
+
+main{position:relative;z-index:1}
+
+/* ─── TOPBAR ─── */
+.topbar{
+  position:sticky;top:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 28px;height:64px;
+  background:rgba(5,13,26,.85);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+}
+.topbar-brand{display:flex;align-items:center;gap:10px}
+.topbar-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.3rem;letter-spacing:-.03em;
+  background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.topbar-sub{font-size:.7rem;color:var(--muted);letter-spacing:.05em;text-transform:uppercase}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.badge-year{background:rgba(0,200,160,.15);border:1px solid rgba(0,200,160,.3);
+  color:var(--teal);font-size:.72rem;font-weight:600;padding:.3rem .8rem;border-radius:100px;letter-spacing:.05em}
+.badge-live{display:flex;align-items:center;gap:.4rem;font-size:.7rem;color:var(--muted)}
+.badge-live::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--teal);
+  box-shadow:0 0 8px var(--teal);animation:pulse 2s infinite}
+
+/* ─── NAV TABS ─── */
+.nav-tabs{display:flex;gap:4px;padding:0 28px;border-bottom:1px solid var(--border);
+  background:rgba(13,27,46,.6);overflow-x:auto;scrollbar-width:none}
+.nav-tabs::-webkit-scrollbar{display:none}
+.nav-tab{padding:.7rem 1.2rem;font-size:.82rem;font-weight:500;color:var(--muted);
+  cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;user-select:none}
+.nav-tab:hover{color:var(--text)}
+.nav-tab.active{color:var(--teal);border-bottom-color:var(--teal)}
+
+/* ─── PAGE ─── */
+.page{display:none;padding:28px;animation:fadeIn .4s ease}
+.page.active{display:block}
+
+/* ─── SECTION TITLE ─── */
+.section-title{font-family:'Syne',sans-serif;font-weight:700;font-size:1.05rem;
+  letter-spacing:-.02em;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.section-title::before{content:'';width:3px;height:18px;background:var(--grad);border-radius:2px}
+.section-sub{font-size:.82rem;color:var(--muted);margin-top:-10px;margin-bottom:18px}
+
+/* ─── KPI GRID ─── */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:28px}
+.kpi-card{
+  background:var(--card);border:1px solid var(--border);border-radius:14px;
+  padding:18px 20px;position:relative;overflow:hidden;
+  transition:border-color .2s,transform .2s;cursor:default;
+}
+.kpi-card:hover{border-color:rgba(0,200,160,.3);transform:translateY(-2px)}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.kpi-card.c-teal::before{background:linear-gradient(90deg,var(--teal),var(--cyan))}
+.kpi-card.c-blue::before{background:linear-gradient(90deg,var(--blue),var(--cyan))}
+.kpi-card.c-amber::before{background:var(--amber)}
+.kpi-card.c-green::before{background:var(--green)}
+.kpi-card.c-red::before{background:var(--red)}
+.kpi-card.c-purple::before{background:#8B5CF6}
+.kpi-label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;font-weight:500}
+.kpi-value{font-family:'Syne',sans-serif;font-weight:800;font-size:1.6rem;letter-spacing:-.04em;line-height:1}
+.kpi-value.c-teal{color:var(--teal)}
+.kpi-value.c-blue{color:var(--cyan)}
+.kpi-value.c-amber{color:var(--amber)}
+.kpi-value.c-green{color:var(--green)}
+.kpi-value.c-red{color:var(--red)}
+.kpi-value.c-purple{color:#A78BFA}
+.kpi-sub{font-size:.7rem;color:var(--muted);margin-top:4px}
+
+/* ─── CHART GRID ─── */
+.chart-grid{display:grid;gap:14px;margin-bottom:14px}
+.chart-grid-2{grid-template-columns:1fr 1fr}
+.chart-grid-3{grid-template-columns:2fr 1fr}
+.chart-grid-4{grid-template-columns:1fr 1fr 1fr 1fr}
+
+.chart-card{
+  background:var(--card);border:1px solid var(--border);border-radius:14px;
+  padding:20px;position:relative;overflow:hidden;
+}
+.chart-card-title{font-family:'Syne',sans-serif;font-size:.88rem;font-weight:700;
+  color:var(--text);margin-bottom:4px}
+.chart-card-sub{font-size:.72rem;color:var(--muted);margin-bottom:16px}
+.chart-wrap{position:relative;height:240px}
+.chart-wrap-sm{position:relative;height:190px}
+.chart-wrap-lg{position:relative;height:300px}
+
+/* ─── TABLE ─── */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.82rem}
+thead tr{border-bottom:1px solid var(--border)}
+th{padding:10px 14px;text-align:left;font-size:.68rem;font-weight:600;
+  text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+td{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.04)}
+tbody tr{transition:background .15s}
+tbody tr:hover{background:rgba(255,255,255,.03)}
+tbody tr:last-child td{border-bottom:none}
+.rank{font-family:'DM Mono',monospace;font-size:.78rem;color:var(--muted);font-weight:500}
+.rank-1{color:var(--teal);font-weight:700}
+.rank-2{color:var(--cyan)}
+.rank-3{color:var(--blue)}
+.badge{display:inline-block;padding:.2rem .6rem;border-radius:4px;font-size:.68rem;font-weight:600;letter-spacing:.03em}
+.badge-up{background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.25)}
+.badge-down{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.25)}
+.badge-stable{background:rgba(245,158,11,.15);color:var(--amber);border:1px solid rgba(245,158,11,.25)}
+.badge-fast{background:rgba(0,200,160,.15);color:var(--teal);border:1px solid rgba(0,200,160,.25)}
+.badge-slow{background:rgba(239,68,68,.1);color:#FDA4AF;border:1px solid rgba(239,68,68,.2)}
+
+/* ─── PROGRESS BAR ─── */
+.progress-bar{height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;margin-top:4px}
+.progress-fill{height:100%;border-radius:2px;background:var(--grad);transition:width .8s ease}
+
+/* ─── INSIGHT BOX ─── */
+.insight-box{background:rgba(0,200,160,.06);border:1px solid rgba(0,200,160,.2);
+  border-radius:12px;padding:16px 18px;margin-bottom:14px}
+.insight-box-title{font-size:.75rem;font-weight:600;color:var(--teal);
+  text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+.insight-box p{font-size:.85rem;color:rgba(241,245,249,.75);line-height:1.7}
+
+/* ─── FILTER BAR ─── */
+.filter-bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;align-items:center}
+.filter-select{background:var(--card);border:1px solid var(--border);color:var(--text);
+  padding:.45rem .9rem;border-radius:8px;font-size:.8rem;font-family:'DM Sans',sans-serif;
+  cursor:pointer;outline:none;transition:border-color .2s}
+.filter-select:focus{border-color:var(--teal)}
+.filter-btn{padding:.45rem 1rem;border-radius:8px;font-size:.78rem;font-weight:500;
+  cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;border:none}
+.filter-btn-primary{background:linear-gradient(135deg,var(--teal),var(--blue));color:#050D1A;font-weight:700}
+.filter-btn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted)}
+.filter-btn-ghost:hover{border-color:var(--teal);color:var(--teal)}
+
+/* ─── FOOTER ─── */
+.footer{text-align:center;padding:24px;color:var(--muted);font-size:.75rem;border-top:1px solid var(--border);margin-top:20px}
+.footer span{color:var(--teal)}
+
+/* ─── ANIMATIONS ─── */
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 8px var(--teal)}50%{opacity:.5;box-shadow:0 0 4px var(--teal)}}
+@keyframes countUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.animate-in{animation:countUp .5s ease both}
+.delay-1{animation-delay:.1s}
+.delay-2{animation-delay:.2s}
+.delay-3{animation-delay:.3s}
+.delay-4{animation-delay:.4s}
+.delay-5{animation-delay:.5s}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:900px){
+  .chart-grid-2,.chart-grid-3,.chart-grid-4{grid-template-columns:1fr}
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .topbar{padding:0 16px}
+  .page{padding:16px}
+}
+@media(max-width:480px){
+  .kpi-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-brand">
+    <div>
+      <div class="topbar-logo">Apotek Difa Farma</div>
+      <div class="topbar-sub">Dashboard Analitik Penjualan</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="badge-year">2025</div>
+    <div class="badge-live">Data Real</div>
+  </div>
+</div>
+
+<!-- NAV TABS -->
+<div class="nav-tabs">
+  <div class="nav-tab active" onclick="switchTab('ringkasan')">Ringkasan Eksekutif</div>
+  <div class="nav-tab" onclick="switchTab('produk')">Top Produk</div>
+  <div class="nav-tab" onclick="switchTab('kategori')">Kategori & Sediaan</div>
+  <div class="nav-tab" onclick="switchTab('tren')">Tren & Pertumbuhan</div>
+  <div class="nav-tab" onclick="switchTab('moving')">Fast/Slow Moving</div>
+</div>
+
+<main>
+
+<!-- ════════════ PAGE 1: RINGKASAN ════════════ -->
+<div class="page active" id="page-ringkasan">
+
+  <div class="section-title" style="margin-top:4px">Ringkasan Eksekutif</div>
+  <div class="section-sub">Kinerja penjualan keseluruhan Apotek Difa Farma periode Januari – Desember 2025</div>
+
+  <!-- KPI -->
+  <div class="kpi-grid">
+    <div class="kpi-card c-teal animate-in">
+      <div class="kpi-label">Total Transaksi</div>
+      <div class="kpi-value c-teal" id="kpi-transaksi">18.054</div>
+      <div class="kpi-sub">baris data penjualan</div>
+    </div>
+    <div class="kpi-card c-blue animate-in delay-1">
+      <div class="kpi-label">Total Revenue 2025</div>
+      <div class="kpi-value c-blue" id="kpi-revenue">Rp 399,8 Jt</div>
+      <div class="kpi-sub">seluruh periode Jan–Des</div>
+    </div>
+    <div class="kpi-card c-green animate-in delay-2">
+      <div class="kpi-label">Total Qty Terjual</div>
+      <div class="kpi-value c-green">158.354</div>
+      <div class="kpi-sub">unit produk</div>
+    </div>
+    <div class="kpi-card c-amber animate-in delay-3">
+      <div class="kpi-label">Jenis Obat Unik</div>
+      <div class="kpi-value c-amber">1.067</div>
+      <div class="kpi-sub">SKU berbeda</div>
+    </div>
+    <div class="kpi-card c-teal animate-in delay-4">
+      <div class="kpi-label">Fast Moving</div>
+      <div class="kpi-value c-teal">83</div>
+      <div class="kpi-sub">produk (qty > 500/tahun)</div>
+    </div>
+    <div class="kpi-card c-red animate-in delay-5">
+      <div class="kpi-label">Slow Moving</div>
+      <div class="kpi-value c-red">440</div>
+      <div class="kpi-sub">produk (qty < 10/tahun)</div>
+    </div>
+  </div>
+
+  <!-- Charts row 1 -->
+  <div class="chart-grid chart-grid-3" style="margin-bottom:14px">
+    <div class="chart-card">
+      <div class="chart-card-title">Tren Revenue Bulanan</div>
+      <div class="chart-card-sub">Total penjualan per bulan dalam Rupiah</div>
+      <div class="chart-wrap-lg"><canvas id="chart-revenue-monthly"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-title">Distribusi Qty per Bulan</div>
+      <div class="chart-card-sub">Volume unit terjual</div>
+      <div class="chart-wrap-lg"><canvas id="chart-qty-monthly"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Insight -->
+  <div class="insight-box">
+    <div class="insight-box-title">Insight Utama</div>
+    <p>Puncak penjualan terjadi pada <strong style="color:var(--teal)">April 2025</strong> dengan revenue Rp 38.211.000 dan 14.551 unit. Pertumbuhan tertinggi terjadi pada transisi Februari→Maret (+28,4%). Penurunan terbesar terjadi di Agustus (-11,3%). Rata-rata revenue bulanan <strong style="color:var(--teal)">Rp 33,3 juta</strong> dengan stabilitas operasional yang baik sepanjang tahun. Obat antihipertensi mendominasi penjualan, mencerminkan tingginya prevalensi penyakit kronis pada populasi yang dilayani.</p>
+  </div>
+
+  <!-- Table rekap bulanan -->
+  <div class="chart-card">
+    <div class="chart-card-title">Rekap Penjualan Bulanan</div>
+    <div class="chart-card-sub">Rincian transaksi, kuantitas, dan revenue per bulan</div>
+    <div class="table-wrap">
+      <table id="table-monthly"></table>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ PAGE 2: TOP PRODUK ════════════ -->
+<div class="page" id="page-produk">
+
+  <div class="section-title" style="margin-top:4px">Analisis Top Produk</div>
+  <div class="section-sub">15 produk dengan kuantitas penjualan tertinggi sepanjang 2025</div>
+
+  <div class="chart-grid chart-grid-2" style="margin-bottom:14px">
+    <div class="chart-card">
+      <div class="chart-card-title">Top 10 Produk — Qty Terjual</div>
+      <div class="chart-card-sub">Berdasarkan total unit sepanjang 2025</div>
+      <div class="chart-wrap-lg"><canvas id="chart-top-qty"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-title">Top 10 Produk — Revenue</div>
+      <div class="chart-card-sub">Berdasarkan total nilai penjualan</div>
+      <div class="chart-wrap-lg"><canvas id="chart-top-rev"></canvas></div>
+    </div>
+  </div>
+
+  <div class="insight-box">
+    <div class="insight-box-title">Insight Produk</div>
+    <p><strong style="color:var(--teal)">Amlodipin 5mg</strong> memimpin dengan 6.830 unit — 2x lipat produk kedua. Paracetamol 500mg memiliki frekuensi transaksi tertinggi (325 kali), menandakan demand harian yang konsisten. <strong style="color:var(--cyan)">Atorvastatin</strong> menonjol dari sisi revenue (Rp 2,88 juta dari 2.885 unit), menandakan margin tinggi per unit. 8 dari 10 produk teratas adalah obat penyakit kronis — konsisten dengan profil pasien BPJS.</p>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-card-title">Tabel Detail Top 10 Produk</div>
+    <div class="chart-card-sub">Ranking berdasarkan total kuantitas terjual</div>
+    <div class="table-wrap">
+      <table id="table-top10"></table>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ PAGE 3: KATEGORI ════════════ -->
+<div class="page" id="page-kategori">
+
+  <div class="section-title" style="margin-top:4px">Distribusi Kategori & Bentuk Sediaan</div>
+  <div class="section-sub">Breakdown penjualan berdasarkan golongan farmakologi dan bentuk sediaan</div>
+
+  <div class="chart-grid chart-grid-2" style="margin-bottom:14px">
+    <div class="chart-card">
+      <div class="chart-card-title">Distribusi Revenue per Kategori</div>
+      <div class="chart-card-sub">Pie chart berdasarkan total nilai penjualan</div>
+      <div class="chart-wrap-lg"><canvas id="chart-kat-pie"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-title">Distribusi Qty per Kategori</div>
+      <div class="chart-card-sub">Bar chart berdasarkan volume unit</div>
+      <div class="chart-wrap-lg"><canvas id="chart-kat-bar"></canvas></div>
+    </div>
+  </div>
+
+  <div class="chart-grid chart-grid-2" style="margin-bottom:14px">
+    <div class="chart-card">
+      <div class="chart-card-title">Tabel Kategori Lengkap</div>
+      <div class="chart-card-sub">Semua kategori dengan persentase kontribusi</div>
+      <div class="table-wrap">
+        <table id="table-kategori"></table>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-title">Distribusi Bentuk Sediaan</div>
+      <div class="chart-card-sub">Berdasarkan jumlah transaksi per satuan</div>
+      <div style="margin-bottom:12px"><canvas id="chart-satuan" style="max-height:180px"></canvas></div>
+      <div class="table-wrap">
+        <table id="table-satuan"></table>
+      </div>
+    </div>
+  </div>
+
+  <div class="insight-box">
+    <div class="insight-box-title">Insight Kategori</div>
+    <p>Golongan <strong style="color:var(--teal)">Antihipertensi</strong> memimpin dari sisi kuantitas (18.057 unit, 11,4%). Namun dari sisi revenue, kategori <strong style="color:var(--cyan)">Lainnya</strong> mendominasi 82,8% — menandakan luasnya portofolio produk bernilai tinggi di luar kategori utama. Tablet mendominasi bentuk sediaan (53,4% transaksi), konsisten dengan obat-obatan oral kronis yang menjadi andalan apotek.</p>
+  </div>
+</div>
+
+<!-- ════════════ PAGE 4: TREN ════════════ -->
+<div class="page" id="page-tren">
+
+  <div class="section-title" style="margin-top:4px">Analisis Tren & Pertumbuhan</div>
+  <div class="section-sub">Pertumbuhan month-over-month dan pola musiman penjualan 2025</div>
+
+  <div class="chart-grid chart-grid-2" style="margin-bottom:14px">
+    <div class="chart-card">
+      <div class="chart-card-title">Pertumbuhan Revenue MoM (%)</div>
+      <div class="chart-card-sub">Perubahan persen dibanding bulan sebelumnya</div>
+      <div class="chart-wrap-lg"><canvas id="chart-growth"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-title">Volume Transaksi per Bulan</div>
+      <div class="chart-card-sub">Jumlah baris transaksi per bulan</div>
+      <div class="chart-wrap-lg"><canvas id="chart-transaksi"></canvas></div>
+    </div>
+  </div>
+
+  <div class="insight-box">
+    <div class="insight-box-title">Insight Tren</div>
+    <p>Terdapat pola musiman yang jelas: <strong style="color:var(--teal)">Triwulan I–II</strong> (Mar–Apr) adalah periode puncak (+28,4% dan +7,1%). Agustus mencatat penurunan terbesar (-11,3%), kemungkinan karena periode libur. <strong style="color:var(--cyan)">Akhir tahun</strong> (Nov–Des) menunjukkan pemulihan kuat (+8,4% dan +7,3%). Pola ini dapat digunakan untuk perencanaan pengadaan stok yang lebih strategis.</p>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-card-title">Tabel Pertumbuhan Bulanan Detail</div>
+    <div class="chart-card-sub">Revenue, growth MoM, dan status per bulan</div>
+    <div class="table-wrap">
+      <table id="table-tren"></table>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ PAGE 5: MOVING ════════════ -->
+<div class="page" id="page-moving">
+
+  <div class="section-title" style="margin-top:4px">Klasifikasi Fast & Slow Moving Products</div>
+  <div class="section-sub">Analisis kecepatan perputaran stok untuk optimasi manajemen inventori</div>
+
+  <!-- Summary cards -->
+  <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px">
+    <div class="kpi-card c-teal">
+      <div class="kpi-label">Fast Moving</div>
+      <div class="kpi-value c-teal">83 produk</div>
+      <div class="kpi-sub">qty > 500 unit/tahun — 7,8% SKU</div>
+    </div>
+    <div class="kpi-card c-amber">
+      <div class="kpi-label">Normal Moving</div>
+      <div class="kpi-value c-amber">544 produk</div>
+      <div class="kpi-sub">qty 10–500 unit/tahun — 51,0% SKU</div>
+    </div>
+    <div class="kpi-card c-red">
+      <div class="kpi-label">Slow Moving</div>
+      <div class="kpi-value c-red">440 produk</div>
+      <div class="kpi-sub">qty < 10 unit/tahun — 41,2% SKU</div>
+    </div>
+  </div>
+
+  <!-- Donut chart distribusi + bar fast moving -->
+  <div class="chart-grid chart-grid-2" style="margin-bottom:14px">
+    <div class="chart-card">
+      <div class="chart-card-title">Distribusi Klasifikasi Produk</div>
+      <div class="chart-card-sub">Proporsi SKU berdasarkan kecepatan perputaran</div>
+      <div class="chart-wrap"><canvas id="chart-moving-donut"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-title">Top 10 Fast Moving Products</div>
+      <div class="chart-card-sub">Produk dengan perputaran tertinggi (qty/tahun)</div>
+      <div class="chart-wrap"><canvas id="chart-fast-bar"></canvas></div>
+    </div>
+  </div>
+
+  <div class="insight-box">
+    <div class="insight-box-title">Insight Inventori</div>
+    <p>Prinsip Pareto terbukti berlaku: <strong style="color:var(--teal)">7,8% produk</strong> (83 SKU fast moving) berkontribusi pada mayoritas volume penjualan. Sementara itu, <strong style="color:var(--red)">41,2% produk</strong> (440 SKU slow moving) memiliki perputaran sangat lambat — potensi modal yang terkunci. Rekomendasi: diferensiasi strategi pengadaan antara fast dan slow moving, serta evaluasi berkala untuk kemungkinan pengurangan SKU slow moving.</p>
+  </div>
+
+  <!-- Tables side by side -->
+  <div class="chart-grid chart-grid-2">
+    <div class="chart-card">
+      <div class="chart-card-title" style="color:var(--teal)">Top 10 Fast Moving Products</div>
+      <div class="chart-card-sub">Produk prioritas pengadaan</div>
+      <div class="table-wrap"><table id="table-fast"></table></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-title" style="color:#FDA4AF">Sample Slow Moving Products</div>
+      <div class="chart-card-sub">Perlu evaluasi inventori</div>
+      <div class="table-wrap"><table id="table-slow"></table></div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<div class="footer">
+  Dashboard Analitik Penjualan <span>Apotek Difa Farma</span> · Kabupaten Pangkep, Sulawesi Selatan · Data: Januari – Desember 2025 · 18.054 Transaksi
+</div>
+
+<script>
+// ════════════════════════════════════════════════════
+// DATA
+// ════════════════════════════════════════════════════
+const DATA = {
+  monthly: [
+    {bulan:'Jan',bln:1,transaksi:1186,qty:10663,revenue:25499000},
+    {bulan:'Feb',bln:2,transaksi:1330,qty:12594,revenue:27787000},
+    {bulan:'Mar',bln:3,transaksi:1605,qty:13636,revenue:35665000},
+    {bulan:'Apr',bln:4,transaksi:1607,qty:14551,revenue:38211000},
+    {bulan:'Mei',bln:5,transaksi:1448,qty:13879,revenue:34061000},
+    {bulan:'Jun',bln:6,transaksi:1677,qty:15125,revenue:33501000},
+    {bulan:'Jul',bln:7,transaksi:1538,qty:12847,revenue:34286000},
+    {bulan:'Agu',bln:8,transaksi:1433,qty:12692,revenue:30402000},
+    {bulan:'Sep',bln:9,transaksi:1506,qty:12522,revenue:34687500},
+    {bulan:'Okt',bln:10,transaksi:1455,qty:12320,revenue:32569500},
+    {bulan:'Nov',bln:11,transaksi:1622,qty:13514,revenue:35289500},
+    {bulan:'Des',bln:12,transaksi:1647,qty:14010,revenue:37864500},
+  ],
+  top10: [
+    {nama:'Amlodipin 5mg',qty:6830,rev:2043000,freq:277},
+    {nama:'Amlodipin 10mg',qty:5483,rev:1642000,freq:261},
+    {nama:'Paracetamol 500mg',qty:4753,rev:1433000,freq:325},
+    {nama:'Metformin 500mg',qty:4010,rev:1204000,freq:135},
+    {nama:'Omeprazole Kapsul',qty:3166,rev:1894500,freq:227},
+    {nama:'Simvastatin 10mg',qty:2900,rev:863500,freq:157},
+    {nama:'Atorvastatin',qty:2885,rev:2883500,freq:187},
+    {nama:'Simvastatin 20mg',qty:2790,rev:841000,freq:135},
+    {nama:'Dexamethasone 0,5mg',qty:2440,rev:494000,freq:167},
+    {nama:'Methylprednisolone 4mg',qty:2310,rev:929000,freq:169},
+  ],
+  kategori: [
+    {nama:'Lainnya',qty:80921,rev:331740499},
+    {nama:'Antihipertensi',qty:18057,rev:7860000},
+    {nama:'Analgetik',qty:8785,rev:13974000},
+    {nama:'Antasida/GI',qty:8172,rev:5918500},
+    {nama:'Kardiovaskular',qty:9264,rev:5499000},
+    {nama:'Antidiabetes',qty:7103,rev:11161000},
+    {nama:'Vitamin/Suplemen',qty:6968,rev:9600000},
+    {nama:'Antibiotik',qty:5450,rev:6903000},
+    {nama:'Antiinflamasi',qty:5448,rev:2347000},
+    {nama:'Antihistamin',qty:5124,rev:1814000},
+    {nama:'Mukolitik',qty:3062,rev:3006000},
+  ],
+  satuan: [
+    {nama:'TABLET',count:9168},
+    {nama:'BOTOL',count:2474},
+    {nama:'KAPSUL',count:1448},
+    {nama:'PCS',count:1261},
+    {nama:'STRIP',count:1126},
+    {nama:'AMPUL',count:838},
+    {nama:'TUBE',count:649},
+    {nama:'SACHET',count:195},
+  ],
+  fast_moving: [
+    {nama:'Amlodipin 5mg',qty:6830},
+    {nama:'Amlodipin 10mg',qty:5483},
+    {nama:'Paracetamol 500mg',qty:4753},
+    {nama:'Metformin 500mg',qty:4010},
+    {nama:'Omeprazole Kapsul',qty:3166},
+    {nama:'Simvastatin 10mg',qty:2900},
+    {nama:'Atorvastatin',qty:2885},
+    {nama:'Simvastatin 20mg',qty:2790},
+    {nama:'Dexamethasone 0,5mg',qty:2440},
+    {nama:'Methylprednisolone 4mg',qty:2310},
+  ],
+  slow_moving: [
+    {nama:'Cendo Xitrol MD',qty:1},
+    {nama:'Madeo',qty:1},
+    {nama:'Calcium Gluconate',qty:1},
+    {nama:'Atropin Inj',qty:1},
+    {nama:'Ketoprofen Gel',qty:2},
+    {nama:'Dexamethasone Inj 5mg',qty:2},
+    {nama:'Bisakodil Supp',qty:3},
+    {nama:'Nistatin Vaginal',qty:3},
+    {nama:'Boric Acid',qty:4},
+    {nama:'Pyridoxine Inj',qty:4},
+  ]
+};
+
+// ════════════════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════════════════
+const fmtRp = (n) => 'Rp ' + n.toLocaleString('id-ID');
+const fmtRpShort = (n) => n >= 1e6 ? 'Rp ' + (n/1e6).toFixed(1) + ' Jt' : 'Rp ' + n.toLocaleString('id-ID');
+const fmtN = (n) => n.toLocaleString('id-ID');
+
+const COLORS = ['#00C8A0','#22D3EE','#0EA5E9','#8B5CF6','#F59E0B','#EF4444','#10B981','#F97316','#EC4899','#6366F1','#14B8A6'];
+const CHART_DEFAULTS = {
+  font: { family: "'DM Sans', sans-serif", size: 11 },
+  color: 'rgba(241,245,249,0.5)',
+  plugins: {
+    legend: { display: false },
+    tooltip: {
+      backgroundColor: '#0D1B2E',
+      borderColor: 'rgba(0,200,160,0.3)',
+      borderWidth: 1,
+      titleFont: { family: "'Syne', sans-serif", size: 12 },
+      bodyFont: { family: "'DM Sans', sans-serif", size: 11 },
+      padding: 10,
+      callbacks: {}
+    }
+  },
+  scales: {
+    x: {
+      ticks: { color: 'rgba(241,245,249,0.5)', font: { size: 10 } },
+      grid: { color: 'rgba(255,255,255,0.04)' }
+    },
+    y: {
+      ticks: { color: 'rgba(241,245,249,0.5)', font: { size: 10 } },
+      grid: { color: 'rgba(255,255,255,0.04)' }
+    }
+  }
+};
+
+function makeGradient(ctx, color1, color2) {
+  const g = ctx.createLinearGradient(0,0,0,300);
+  g.addColorStop(0, color1);
+  g.addColorStop(1, color2);
+  return g;
+}
+
+// ════════════════════════════════════════════════════
+// CHARTS — PAGE 1: RINGKASAN
+// ════════════════════════════════════════════════════
+function initPage1() {
+  // Revenue monthly line
+  const ctx1 = document.getElementById('chart-revenue-monthly').getContext('2d');
+  const grad1 = ctx1.createLinearGradient(0,0,0,300);
+  grad1.addColorStop(0,'rgba(0,200,160,0.35)');
+  grad1.addColorStop(1,'rgba(0,200,160,0.01)');
+  new Chart(ctx1, {
+    type: 'line',
+    data: {
+      labels: DATA.monthly.map(d=>d.bulan),
+      datasets: [{
+        data: DATA.monthly.map(d=>d.revenue),
+        borderColor: '#00C8A0',
+        backgroundColor: grad1,
+        borderWidth: 2.5,
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: '#00C8A0',
+        pointRadius: 4,
+        pointHoverRadius: 6,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          ...CHART_DEFAULTS.plugins.tooltip,
+          callbacks: { label: (c) => ' ' + fmtRp(c.raw) }
+        }
+      },
+      scales: {
+        x: { ticks: { color: 'rgba(241,245,249,0.5)', font:{size:11} }, grid: { color: 'rgba(255,255,255,0.04)' } },
+        y: {
+          ticks: { color: 'rgba(241,245,249,0.5)', font:{size:10}, callback: v => 'Rp '+(v/1e6).toFixed(0)+'Jt' },
+          grid: { color: 'rgba(255,255,255,0.04)' }
+        }
+      }
+    }
+  });
+
+  // Qty bar
+  const ctx2 = document.getElementById('chart-qty-monthly').getContext('2d');
+  new Chart(ctx2, {
+    type: 'bar',
+    data: {
+      labels: DATA.monthly.map(d=>d.bulan),
+      datasets: [{
+        data: DATA.monthly.map(d=>d.qty),
+        backgroundColor: DATA.monthly.map((_,i) => i===3 ? '#00C8A0' : 'rgba(0,200,160,0.35)'),
+        borderRadius: 4,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { ...CHART_DEFAULTS.plugins.tooltip, callbacks: { label: c => ' '+fmtN(c.raw)+' unit' } }
+      },
+      scales: {
+        x: { ticks:{color:'rgba(241,245,249,0.5)',font:{size:11}}, grid:{color:'rgba(255,255,255,0.04)'} },
+        y: { ticks:{color:'rgba(241,245,249,0.5)',font:{size:10}}, grid:{color:'rgba(255,255,255,0.04)'} }
+      }
+    }
+  });
+
+  // Table rekap bulanan
+  const prevRev = [null, ...DATA.monthly.slice(0,-1).map(d=>d.revenue)];
+  const rows = DATA.monthly.map((d,i) => {
+    const growth = i===0 ? null : ((d.revenue - prevRev[i])/prevRev[i]*100);
+    const gText = i===0 ? '<span class="badge badge-stable">Baseline</span>' :
+      growth > 5 ? `<span class="badge badge-up">↑ ${growth.toFixed(1)}%</span>` :
+      growth > 0 ? `<span class="badge badge-up">↑ ${growth.toFixed(1)}%</span>` :
+      `<span class="badge badge-down">↓ ${Math.abs(growth).toFixed(1)}%</span>`;
+    const isMax = d.revenue === Math.max(...DATA.monthly.map(x=>x.revenue));
+    return `<tr ${isMax?'style="background:rgba(0,200,160,0.06)"':''}>
+      <td><span style="font-family:'DM Mono',monospace;font-size:.78rem">${d.bln.toString().padStart(2,'0')}</span></td>
+      <td style="font-weight:500">${d.bulan}${isMax?' <span style="color:var(--teal);font-size:.65rem">★ Tertinggi</span>':''}</td>
+      <td style="text-align:right">${fmtN(d.transaksi)}</td>
+      <td style="text-align:right">${fmtN(d.qty)}</td>
+      <td style="text-align:right;color:var(--teal);font-weight:500">${fmtRp(d.revenue)}</td>
+      <td style="text-align:center">${gText}</td>
+    </tr>`;
+  });
+  document.getElementById('table-monthly').innerHTML = `
+    <thead><tr>
+      <th>No</th><th>Bulan</th><th style="text-align:right">Transaksi</th>
+      <th style="text-align:right">Qty</th><th style="text-align:right">Revenue</th><th style="text-align:center">Growth MoM</th>
+    </tr></thead>
+    <tbody>${rows.join('')}
+    <tr style="background:rgba(0,200,160,0.1);font-weight:600">
+      <td colspan="2" style="color:var(--teal)">TOTAL</td>
+      <td style="text-align:right;color:var(--teal)">${fmtN(DATA.monthly.reduce((a,d)=>a+d.transaksi,0))}</td>
+      <td style="text-align:right;color:var(--teal)">${fmtN(DATA.monthly.reduce((a,d)=>a+d.qty,0))}</td>
+      <td style="text-align:right;color:var(--teal)">${fmtRp(DATA.monthly.reduce((a,d)=>a+d.revenue,0))}</td>
+      <td></td>
+    </tr></tbody>`;
+}
+
+// ════════════════════════════════════════════════════
+// CHARTS — PAGE 2: TOP PRODUK
+// ════════════════════════════════════════════════════
+function initPage2() {
+  // Horizontal bar — qty
+  const ctx3 = document.getElementById('chart-top-qty').getContext('2d');
+  new Chart(ctx3, {
+    type: 'bar',
+    data: {
+      labels: DATA.top10.map(d => d.nama.length > 18 ? d.nama.substring(0,16)+'…' : d.nama),
+      datasets: [{
+        data: DATA.top10.map(d=>d.qty),
+        backgroundColor: DATA.top10.map((_,i) => i<3 ? `rgba(0,200,160,${1-i*0.2})` : 'rgba(14,165,233,0.5)'),
+        borderRadius: 4,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend:{display:false},
+        tooltip: { ...CHART_DEFAULTS.plugins.tooltip, callbacks: { label: c => ' '+fmtN(c.raw)+' unit' } }
+      },
+      scales: {
+        x: { ticks:{color:'rgba(241,245,249,0.5)',font:{size:10}}, grid:{color:'rgba(255,255,255,0.04)'} },
+        y: { ticks:{color:'rgba(241,245,249,0.8)',font:{size:10}}, grid:{display:false} }
+      }
+    }
+  });
+
+  // Horizontal bar — revenue
+  const ctx4 = document.getElementById('chart-top-rev').getContext('2d');
+  new Chart(ctx4, {
+    type: 'bar',
+    data: {
+      labels: DATA.top10.map(d => d.nama.length > 18 ? d.nama.substring(0,16)+'…' : d.nama),
+      datasets: [{
+        data: DATA.top10.map(d=>d.rev),
+        backgroundColor: DATA.top10.map((_,i) => i<3 ? `rgba(34,211,238,${1-i*0.2})` : 'rgba(139,92,246,0.5)'),
+        borderRadius: 4,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend:{display:false},
+        tooltip: { ...CHART_DEFAULTS.plugins.tooltip, callbacks: { label: c => ' '+fmtRp(c.raw) } }
+      },
+      scales: {
+        x: { ticks:{color:'rgba(241,245,249,0.5)',font:{size:10},callback:v=>'Rp '+(v/1e6).toFixed(1)+'Jt'}, grid:{color:'rgba(255,255,255,0.04)'} },
+        y: { ticks:{color:'rgba(241,245,249,0.8)',font:{size:10}}, grid:{display:false} }
+      }
+    }
+  });
+
+  // Table top 10
+  const maxQty = Math.max(...DATA.top10.map(d=>d.qty));
+  const rows = DATA.top10.map((d,i) => {
+    const rankClass = i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'rank';
+    const pct = (d.qty/maxQty*100).toFixed(0);
+    return `<tr>
+      <td><span class="${rankClass}" style="font-family:'DM Mono',monospace">#${i+1}</span></td>
+      <td style="max-width:200px">
+        <div style="font-weight:500">${d.nama}</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+      </td>
+      <td style="text-align:right;color:var(--teal);font-weight:600">${fmtN(d.qty)}</td>
+      <td style="text-align:right">${fmtRp(d.rev)}</td>
+      <td style="text-align:right;color:var(--muted)">${fmtN(d.freq)}x</td>
+    </tr>`;
+  });
+  document.getElementById('table-top10').innerHTML = `
+    <thead><tr><th>Rank</th><th>Nama Obat</th><th style="text-align:right">Qty</th><th style="text-align:right">Revenue</th><th style="text-align:right">Frekuensi</th></tr></thead>
+    <tbody>${rows.join('')}</tbody>`;
+}
+
+// ════════════════════════════════════════════════════
+// CHARTS — PAGE 3: KATEGORI
+// ════════════════════════════════════════════════════
+function initPage3() {
+  const katColors = ['#4B5563','#00C8A0','#22D3EE','#0EA5E9','#8B5CF6','#F59E0B','#10B981','#EF4444','#F97316','#EC4899','#14B8A6'];
+
+  // Pie chart revenue
+  const ctx5 = document.getElementById('chart-kat-pie').getContext('2d');
+  new Chart(ctx5, {
+    type: 'doughnut',
+    data: {
+      labels: DATA.kategori.map(d=>d.nama),
+      datasets: [{ data: DATA.kategori.map(d=>d.rev), backgroundColor: katColors, borderWidth: 2, borderColor: '#111F33', hoverOffset: 8 }]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      cutout: '62%',
+      plugins: {
+        legend: { position:'right', labels:{color:'rgba(241,245,249,0.7)',font:{size:10},boxWidth:12,padding:8} },
+        tooltip: { ...CHART_DEFAULTS.plugins.tooltip, callbacks: { label: c => ' '+fmtRp(c.raw) } }
+      }
+    }
+  });
+
+  // Bar chart qty (tanpa Lainnya)
+  const katFiltered = DATA.kategori.filter(d=>d.nama!=='Lainnya');
+  const ctx6 = document.getElementById('chart-kat-bar').getContext('2d');
+  new Chart(ctx6, {
+    type: 'bar',
+    data: {
+      labels: katFiltered.map(d=>d.nama),
+      datasets: [{ data: katFiltered.map(d=>d.qty), backgroundColor: katColors.slice(1), borderRadius:4, borderSkipped:false }]
+    },
+    options: {
+      indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      plugins: { legend:{display:false}, tooltip:{...CHART_DEFAULTS.plugins.tooltip, callbacks:{label:c=>' '+fmtN(c.raw)+' unit'}} },
+      scales: {
+        x:{ticks:{color:'rgba(241,245,249,0.5)',font:{size:10}},grid:{color:'rgba(255,255,255,0.04)'}},
+        y:{ticks:{color:'rgba(241,245,249,0.8)',font:{size:10}},grid:{display:false}}
+      }
+    }
+  });
+
+  // Table kategori
+  const totalRev = DATA.kategori.reduce((a,d)=>a+d.rev,0);
+  const totalQty = DATA.kategori.reduce((a,d)=>a+d.qty,0);
+  const rows = DATA.kategori.map((d,i) => `<tr>
+    <td style="text-align:center;font-family:'DM Mono',monospace">${i+1}</td>
+    <td style="font-weight:500">${d.nama}</td>
+    <td style="text-align:right">${fmtN(d.qty)}</td>
+    <td style="text-align:right;color:var(--teal)">${fmtRp(d.rev)}</td>
+    <td style="text-align:right;color:var(--cyan)">${(d.qty/totalQty*100).toFixed(1)}%</td>
+    <td style="text-align:right;color:#A78BFA">${(d.rev/totalRev*100).toFixed(1)}%</td>
+  </tr>`);
+  document.getElementById('table-kategori').innerHTML = `
+    <thead><tr><th>No</th><th>Kategori</th><th style="text-align:right">Qty</th><th style="text-align:right">Revenue</th><th style="text-align:right">%Qty</th><th style="text-align:right">%Rev</th></tr></thead>
+    <tbody>${rows.join('')}
+    <tr style="background:rgba(0,200,160,0.08);font-weight:600">
+      <td colspan="2" style="color:var(--teal)">TOTAL</td>
+      <td style="text-align:right;color:var(--teal)">${fmtN(totalQty)}</td>
+      <td style="text-align:right;color:var(--teal)">${fmtRp(totalRev)}</td>
+      <td style="text-align:right">100%</td><td style="text-align:right">100%</td>
+    </tr></tbody>`;
+
+  // Donut satuan
+  const satColors = ['#00C8A0','#22D3EE','#0EA5E9','#8B5CF6','#F59E0B','#10B981','#EF4444','#F97316'];
+  const ctx7 = document.getElementById('chart-satuan').getContext('2d');
+  new Chart(ctx7, {
+    type: 'doughnut',
+    data: {
+      labels: DATA.satuan.map(d=>d.nama),
+      datasets: [{data:DATA.satuan.map(d=>d.count),backgroundColor:satColors,borderWidth:2,borderColor:'#111F33',hoverOffset:6}]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false, cutout:'60%',
+      plugins: {
+        legend:{position:'right',labels:{color:'rgba(241,245,249,0.7)',font:{size:9},boxWidth:10,padding:6}},
+        tooltip:{...CHART_DEFAULTS.plugins.tooltip,callbacks:{label:c=>' '+fmtN(c.raw)+' transaksi'}}
+      }
+    }
+  });
+
+  // Table satuan
+  const totalSat = DATA.satuan.reduce((a,d)=>a+d.count,0);
+  document.getElementById('table-satuan').innerHTML = `
+    <thead><tr><th>Sediaan</th><th style="text-align:right">Transaksi</th><th style="text-align:right">%</th></tr></thead>
+    <tbody>${DATA.satuan.map(d=>`<tr>
+      <td>${d.nama}</td>
+      <td style="text-align:right">${fmtN(d.count)}</td>
+      <td style="text-align:right;color:var(--cyan)">${(d.count/totalSat*100).toFixed(1)}%</td>
+    </tr>`).join('')}</tbody>`;
+}
+
+// ════════════════════════════════════════════════════
+// CHARTS — PAGE 4: TREN
+// ════════════════════════════════════════════════════
+function initPage4() {
+  const growths = DATA.monthly.map((d,i) => {
+    if(i===0) return 0;
+    return ((d.revenue - DATA.monthly[i-1].revenue)/DATA.monthly[i-1].revenue*100);
+  });
+
+  // Growth bar
+  const ctx8 = document.getElementById('chart-growth').getContext('2d');
+  new Chart(ctx8, {
+    type: 'bar',
+    data: {
+      labels: DATA.monthly.map(d=>d.bulan),
+      datasets: [{
+        data: growths,
+        backgroundColor: growths.map(g => g>0 ? 'rgba(0,200,160,0.7)' : 'rgba(239,68,68,0.7)'),
+        borderRadius:4, borderSkipped:false
+      }]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins: {
+        legend:{display:false},
+        tooltip:{...CHART_DEFAULTS.plugins.tooltip,callbacks:{label:c=>' '+c.raw.toFixed(1)+'%'}}
+      },
+      scales: {
+        x:{ticks:{color:'rgba(241,245,249,0.5)',font:{size:11}},grid:{color:'rgba(255,255,255,0.04)'}},
+        y:{ticks:{color:'rgba(241,245,249,0.5)',font:{size:10},callback:v=>v.toFixed(0)+'%'},grid:{color:'rgba(255,255,255,0.04)'},
+           afterDataLimits(scale){scale.max=scale.max*1.1;scale.min=scale.min*1.1}}
+      }
+    }
+  });
+
+  // Transaksi line
+  const ctx9 = document.getElementById('chart-transaksi').getContext('2d');
+  const grad9 = ctx9.createLinearGradient(0,0,0,300);
+  grad9.addColorStop(0,'rgba(34,211,238,0.3)'); grad9.addColorStop(1,'rgba(34,211,238,0.01)');
+  new Chart(ctx9, {
+    type: 'line',
+    data: {
+      labels: DATA.monthly.map(d=>d.bulan),
+      datasets: [{
+        data: DATA.monthly.map(d=>d.transaksi),
+        borderColor:'#22D3EE', backgroundColor:grad9, borderWidth:2.5, fill:true, tension:0.4,
+        pointBackgroundColor:'#22D3EE', pointRadius:4, pointHoverRadius:6
+      }]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{...CHART_DEFAULTS.plugins.tooltip,callbacks:{label:c=>' '+fmtN(c.raw)+' transaksi'}}},
+      scales:{
+        x:{ticks:{color:'rgba(241,245,249,0.5)',font:{size:11}},grid:{color:'rgba(255,255,255,0.04)'}},
+        y:{ticks:{color:'rgba(241,245,249,0.5)',font:{size:10}},grid:{color:'rgba(255,255,255,0.04)'}}
+      }
+    }
+  });
+
+  // Table tren
+  const rows = DATA.monthly.map((d,i) => {
+    const g = growths[i];
+    const gText = i===0 ? '<span class="badge badge-stable">Baseline</span>' :
+      g > 10 ? `<span class="badge badge-up">↑ ${g.toFixed(1)}%</span>` :
+      g > 0 ? `<span class="badge badge-up">↑ ${g.toFixed(1)}%</span>` :
+      g > -10 ? `<span class="badge badge-down">↓ ${Math.abs(g).toFixed(1)}%</span>` :
+      `<span class="badge badge-down">↓ ${Math.abs(g).toFixed(1)}%</span>`;
+    const status = i===0?'—':g>5?'Naik Signifikan':g>0?'Naik':g>-5?'Turun Sedikit':'Turun';
+    const sColor = i===0?'var(--muted)':g>0?'var(--green)':g>-5?'var(--amber)':'var(--red)';
+    return `<tr>
+      <td style="font-weight:600;color:var(--text)">${d.bulan}</td>
+      <td style="text-align:right;color:var(--teal);font-weight:500">${fmtRp(d.revenue)}</td>
+      <td style="text-align:center">${gText}</td>
+      <td style="color:${sColor};font-weight:500">${status}</td>
+      <td style="text-align:right">${fmtN(d.qty)}</td>
+      <td style="text-align:right">${fmtN(d.transaksi)}</td>
+    </tr>`;
+  });
+  document.getElementById('table-tren').innerHTML = `
+    <thead><tr><th>Bulan</th><th style="text-align:right">Revenue</th><th style="text-align:center">Growth</th><th>Status</th><th style="text-align:right">Qty</th><th style="text-align:right">Transaksi</th></tr></thead>
+    <tbody>${rows.join('')}</tbody>`;
+}
+
+// ════════════════════════════════════════════════════
+// CHARTS — PAGE 5: MOVING
+// ════════════════════════════════════════════════════
+function initPage5() {
+  // Donut moving
+  const ctx10 = document.getElementById('chart-moving-donut').getContext('2d');
+  new Chart(ctx10, {
+    type: 'doughnut',
+    data: {
+      labels: ['Fast Moving (>500)','Normal Moving (10-500)','Slow Moving (<10)'],
+      datasets: [{
+        data: [83, 544, 440],
+        backgroundColor: ['rgba(0,200,160,0.8)','rgba(245,158,11,0.7)','rgba(239,68,68,0.7)'],
+        borderWidth: 2, borderColor: '#111F33', hoverOffset: 8
+      }]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false, cutout:'62%',
+      plugins: {
+        legend:{position:'bottom',labels:{color:'rgba(241,245,249,0.7)',font:{size:10},boxWidth:12,padding:10}},
+        tooltip:{...CHART_DEFAULTS.plugins.tooltip,callbacks:{label:c=>' '+c.raw+' produk ('+((c.raw/1067)*100).toFixed(1)+'%)'}}
+      }
+    }
+  });
+
+  // Bar fast moving
+  const ctx11 = document.getElementById('chart-fast-bar').getContext('2d');
+  new Chart(ctx11, {
+    type: 'bar',
+    data: {
+      labels: DATA.fast_moving.map(d => d.nama.length>18?d.nama.substring(0,16)+'…':d.nama),
+      datasets: [{
+        data: DATA.fast_moving.map(d=>d.qty),
+        backgroundColor: DATA.fast_moving.map((_,i)=>`rgba(0,200,160,${1-i*0.07})`),
+        borderRadius:4, borderSkipped:false
+      }]
+    },
+    options: {
+      indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{...CHART_DEFAULTS.plugins.tooltip,callbacks:{label:c=>' '+fmtN(c.raw)+' unit/tahun'}}},
+      scales:{
+        x:{ticks:{color:'rgba(241,245,249,0.5)',font:{size:10}},grid:{color:'rgba(255,255,255,0.04)'}},
+        y:{ticks:{color:'rgba(241,245,249,0.8)',font:{size:10}},grid:{display:false}}
+      }
+    }
+  });
+
+  // Table fast
+  document.getElementById('table-fast').innerHTML = `
+    <thead><tr><th>Rank</th><th>Nama Obat</th><th style="text-align:right">Qty/Tahun</th><th>Status</th></tr></thead>
+    <tbody>${DATA.fast_moving.map((d,i)=>`<tr>
+      <td class="${i<3?'rank-'+(i+1):'rank'}" style="font-family:'DM Mono',monospace">#${i+1}</td>
+      <td>${d.nama}</td>
+      <td style="text-align:right;color:var(--teal);font-weight:600">${fmtN(d.qty)}</td>
+      <td><span class="badge badge-fast">Fast Moving</span></td>
+    </tr>`).join('')}</tbody>`;
+
+  // Table slow
+  document.getElementById('table-slow').innerHTML = `
+    <thead><tr><th>Rank</th><th>Nama Obat</th><th style="text-align:right">Qty/Tahun</th><th>Status</th></tr></thead>
+    <tbody>${DATA.slow_moving.map((d,i)=>`<tr>
+      <td class="rank" style="font-family:'DM Mono',monospace">#${i+1}</td>
+      <td>${d.nama}</td>
+      <td style="text-align:right;color:#FDA4AF;font-weight:600">${fmtN(d.qty)}</td>
+      <td><span class="badge badge-slow">Slow Moving</span></td>
+    </tr>`).join('')}</tbody>`;
+}
+
+// ════════════════════════════════════════════════════
+// TAB NAVIGATION
+// ════════════════════════════════════════════════════
+const pageInited = {};
+function switchTab(id) {
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelector(`[onclick="switchTab('${id}')"]`).classList.add('active');
+  document.getElementById('page-'+id).classList.add('active');
+
+  if(!pageInited[id]) {
+    pageInited[id] = true;
+    if(id==='ringkasan') initPage1();
+    if(id==='produk') initPage2();
+    if(id==='kategori') initPage3();
+    if(id==='tren') initPage4();
+    if(id==='moving') initPage5();
+  }
+}
+
+// Init page 1 on load
+window.addEventListener('load', () => {
+  pageInited['ringkasan'] = true;
+  initPage1();
+});
+</script>
+</body>
+</html>
